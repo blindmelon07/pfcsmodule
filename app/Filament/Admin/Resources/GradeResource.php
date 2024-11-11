@@ -26,56 +26,48 @@ class GradeResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        // Check if the user is authenticated
         if (auth()->check()) {
             $user = auth()->user();
 
-            // If the user has the "super_admin" role, allow access to all records
             if ($user->hasRole('super_admin')) {
                 return $query;
             }
 
-            // If the user has the "teacher" role, filter to show only students in their assigned sections
             if ($user->hasRole('teacher')) {
-                $teacher = $user->teacher; // Assuming User model has a 'teacher' relationship
+                $teacher = $user->teacher;
                 if ($teacher) {
                     return $query->whereHas('student', function (Builder $studentQuery) use ($teacher) {
                         $studentQuery->whereIn('section_id', $teacher->sections->pluck('id'));
                     });
                 }
 
-                return $query->whereRaw('0 = 1'); // Return no records if no teacher relationship
+                return $query->whereRaw('0 = 1');
             }
 
-            // If the user has the "guardian" role, filter to show only related students' records
             if ($user->hasRole('guardian')) {
-                $guardian = $user->guardian; // Assuming User model has a 'guardian' relationship
+                $guardian = $user->guardian;
                 if ($guardian) {
                     return $query->whereHas('student', function (Builder $studentQuery) use ($guardian) {
                         $studentQuery->whereIn('id', $guardian->students->pluck('id'));
                     });
                 }
 
-                return $query->whereRaw('0 = 1'); // Return no records if no guardian relationship
+                return $query->whereRaw('0 = 1');
             }
 
-            // If the user has the "student" role, filter to show only their own grades
             if ($user->hasRole('student')) {
-                $student = $user->student; // Assuming User model has a 'student' relationship
+                $student = $user->student;
                 if ($student) {
-                    // Show only grades for the logged-in student
                     return $query->where('student_id', $student->id);
                 }
 
-                return $query->whereRaw('0 = 1'); // Return no records if no student relationship
+                return $query->whereRaw('0 = 1');
             }
 
-            // Restrict access for other roles (optional)
             return $query->whereRaw('0 = 1');
         }
 
-        // Fallback for unauthenticated users (shouldn't happen in this context)
-        return $query->whereRaw('0 = 1'); // Return no records
+        return $query->whereRaw('0 = 1');
     }
 
     public static function form(Form $form): Form
@@ -85,24 +77,24 @@ class GradeResource extends Resource
                 Forms\Components\Select::make('section_id')
                     ->label('Section')
                     ->options(function () {
-                        $teacher = Auth::user()->teacher; // Assumes User has a relationship to Teacher
+                        $teacher = Auth::user()->teacher;
 
                         return $teacher ? $teacher->sections()->pluck('name', 'sections.id') : [];
                     })
                     ->searchable()
                     ->required()
-                    ->reactive() // Make section_id reactive to trigger updates in student_id
-                    ->afterStateUpdated(fn (callable $set) => $set('student_id', null)), // Reset student_id when section changes
+                    ->reactive()
+                    ->afterStateUpdated(fn (callable $set) => $set('student_id', null)),
 
                 Forms\Components\Select::make('student_id')
                     ->label('Student')
                     ->options(function (callable $get) {
-                        $sectionId = $get('section_id'); // Get the selected section ID
+                        $sectionId = $get('section_id');
                         if ($sectionId) {
                             return \App\Models\Student::where('section_id', $sectionId)
-                                ->with('user') // Ensure user relationship is loaded
+                                ->with('user')
                                 ->get()
-                                ->pluck('user.name', 'id'); // Display student's name through user relationship
+                                ->pluck('user.name', 'id');
                         }
 
                         return [];
@@ -135,17 +127,17 @@ class GradeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('student.user.name')
+                TextColumn::make('student.user.name')
                     ->label('Student Name')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('subject.name')
+                TextColumn::make('subject.name')
                     ->label('Subject Name')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('student.section.name')
+                TextColumn::make('student.section.name')
                     ->label('Section Name')
                     ->sortable()
                     ->searchable(),
@@ -154,18 +146,25 @@ class GradeResource extends Resource
                 TextColumn::make('second_quarter')->label('Second Quarter'),
                 TextColumn::make('third_quarter')->label('Third Quarter'),
                 TextColumn::make('fourth_quarter')->label('Fourth Quarter'),
+
+                // Calculate average score across quarters
                 TextColumn::make('score')
                     ->label('Average Score')
-                    ->getStateUsing(fn ($record) => $record->average)
+                    ->getStateUsing(fn ($record) => round(collect([
+                        $record->first_quarter,
+                        $record->second_quarter,
+                        $record->third_quarter,
+                        $record->fourth_quarter,
+                    ])->filter()->avg(), 2))
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label('Updated At')
                     ->dateTime()
                     ->sortable()

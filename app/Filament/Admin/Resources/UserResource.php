@@ -74,7 +74,7 @@ class UserResource extends Resource
                             ->prefixIcon('heroicon-m-envelope')
                             ->columnSpan('full')
                             ->email(),
-                            Toggle::make('is_active')
+                        Toggle::make('is_active')
                             ->label('Active')
                             ->inline(false),
                         Forms\Components\TextInput::make('password')
@@ -120,7 +120,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->sortable()
                     ->searchable(),
-                    Tables\Columns\ToggleColumn::make('is_active')
+                Tables\Columns\ToggleColumn::make('is_active')
                     ->sortable()
                     ->label('Active')
                     ->searchable(),

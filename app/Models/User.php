@@ -79,4 +79,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->hasOne(Teacher::class);
     }
+    public function activities()
+{
+    return $this->hasMany(StudentActivity::class, 'teacher_id');
+}
 }
