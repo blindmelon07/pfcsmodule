@@ -3,22 +3,21 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\SectionResource\Pages;
-use App\Filament\Admin\Resources\SectionResource\RelationManagers;
 use App\Models\Section;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SectionResource extends Resource
 {
     protected static ?string $model = Section::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    
+
+    protected static ?string $navigationGroup = 'Modules';
+
     public static function form(Form $form): Form
     {
         return $form

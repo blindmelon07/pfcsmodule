@@ -3,15 +3,12 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\StudentResource\Pages;
-use App\Filament\Admin\Resources\StudentResource\RelationManagers;
 use App\Models\Student;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class StudentResource extends Resource
 {
@@ -19,25 +16,27 @@ class StudentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Modules';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                ->label('Student')
-                ->options(function () {
-                    return \App\Models\User::whereHas('roles', function ($query) {
-                        $query->where('name', 'student');
+                    ->label('Student')
+                    ->options(function () {
+                        return \App\Models\User::whereHas('roles', function ($query) {
+                            $query->where('name', 'student');
+                        })
+                            ->whereDoesntHave('student') // Excludes users already assigned as students
+                            ->pluck('name', 'id'); // Display name, store ID
                     })
-                    ->whereDoesntHave('student') // Excludes users already assigned as students
-                    ->pluck('name', 'id'); // Display name, store ID
-                })
-                ->searchable()
-                ->required(),
-            Forms\Components\Select::make('section_id')
-                ->label('Section')
-                ->relationship('section', 'name')
-                ->required(),
+                    ->searchable()
+                    ->required(),
+                Forms\Components\Select::make('section_id')
+                    ->label('Section')
+                    ->relationship('section', 'name')
+                    ->required(),
             ]);
     }
 

@@ -16,6 +16,7 @@ class EditGuardian extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
     protected function afterSave(): void
     {
         // Sync selected students with the guardian after updating

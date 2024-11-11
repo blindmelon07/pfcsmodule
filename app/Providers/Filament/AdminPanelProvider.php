@@ -18,17 +18,20 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Swis\Filament\Backgrounds\ImageProviders\MyImages;
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->brandLogo(fn () => view('custom-logo'))
             ->default()
             ->id('admin')
             ->path('admin')
             ->spa(true)
             ->login()
+            ->databaseNotifications()
             ->passwordReset()
             ->defaultThemeMode(ThemeMode::Light)
             ->colors([
@@ -53,7 +56,7 @@ class AdminPanelProvider extends PanelProvider
                         hasAvatars: true,
                         slug: 'profile'
                     ),
-
+                \TomatoPHP\FilamentMediaManager\FilamentMediaManagerPlugin::make(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
                     ->gridColumns([
                         'default' => 1,
@@ -76,7 +79,10 @@ class AdminPanelProvider extends PanelProvider
                         'auth.password',
                     ]),
                 \Swis\Filament\Backgrounds\FilamentBackgroundsPlugin::make()
-                    ->showAttribution(false),
+                    ->imageProvider(
+                        MyImages::make()
+                            ->directory('images/backgrounds')
+                    ),
 
                 \Awcodes\Overlook\OverlookPlugin::make()
                     ->includes([

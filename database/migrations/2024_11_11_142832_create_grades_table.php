@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('subject_id')->constrained()->onDelete('cascade');
-            $table->string('grade');
-            $table->string('remarks')->nullable();
+            $table->float('first_quarter')->nullable();
+            $table->float('second_quarter')->nullable();
+            $table->float('third_quarter')->nullable();
+            $table->float('fourth_quarter')->nullable();
+            $table->float('score')->nullable();
             $table->timestamps();
         });
     }

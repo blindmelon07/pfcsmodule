@@ -3,12 +3,18 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\UserResource\Pages;
+use App\Imports\UsersImport;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
@@ -68,7 +74,9 @@ class UserResource extends Resource
                             ->prefixIcon('heroicon-m-envelope')
                             ->columnSpan('full')
                             ->email(),
-
+                            Toggle::make('is_active')
+                            ->label('Active')
+                            ->inline(false),
                         Forms\Components\TextInput::make('password')
                             ->password()
                             ->confirmed()
@@ -112,6 +120,10 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->sortable()
                     ->searchable(),
+                    Tables\Columns\ToggleColumn::make('is_active')
+                    ->sortable()
+                    ->label('Active')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->badge()
                     ->sortable()
@@ -123,9 +135,16 @@ class UserResource extends Resource
 
             ])
             ->filters([
-                //
+                SelectFilter::make('roles')
+                    ->relationship('roles', 'name'),
+                Filter::make('active')
+                    ->label('Not Activated')
+                    ->query(fn (Builder $query) => $query->where('is_active', 0))
+                    ->toggle(),  // This filter shows users with 'is_active' set to 0
             ])
             ->actions([
+                // ImportAction::make()
+                //     ->importUsing(UsersImport::class),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

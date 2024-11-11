@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\UserResource\Pages;
 
 use App\Filament\Admin\Resources\UserResource;
+use App\Filament\Imports\UserImporter;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -13,6 +14,10 @@ class ListUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            // Actions\ImportAction::make()
+            //     ->importer(UserImporter::class),
+            \EightyNine\ExcelImport\ExcelImportAction::make()
+            ->color("primary"),
             Actions\CreateAction::make(),
         ];
     }

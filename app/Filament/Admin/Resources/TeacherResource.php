@@ -3,15 +3,12 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\TeacherResource\Pages;
-use App\Filament\Admin\Resources\TeacherResource\RelationManagers;
 use App\Models\Teacher;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TeacherResource extends Resource
 {
@@ -19,15 +16,17 @@ class TeacherResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Modules';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                ->label('User')
-                ->relationship('user', 'name') // This will display the user's name
-                ->searchable() // Enables search functionality in the dropdown
-                ->required(),
+                    ->label('User')
+                    ->relationship('user', 'name') // This will display the user's name
+                    ->searchable() // Enables search functionality in the dropdown
+                    ->required(),
                 Forms\Components\MultiSelect::make('sections')
                     ->relationship('sections', 'name')
                     ->label('Sections'),

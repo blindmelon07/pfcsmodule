@@ -19,6 +19,6 @@ class Guardian extends Model
     public function students()
     {
         return $this->belongsToMany(Student::class, 'guardian_student', 'guardian_id', 'student_id')
-                    ->withTimestamps(); // This will automatically update `created_at` and `updated_at` in the pivot table
+            ->withTimestamps(); // This will automatically update `created_at` and `updated_at` in the pivot table
     }
 }
