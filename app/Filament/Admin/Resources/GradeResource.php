@@ -75,11 +75,11 @@ class GradeResource extends Resource
     {
         return $form
             ->schema([
-              Forms\Components\Select::make('section_id')
+                Forms\Components\Select::make('section_id')
                 ->label('Section')
                 ->options(function () {
                     $teacher = Auth::user()->teacher; // Assumes User has a relationship to Teacher
-                    return $teacher ? $teacher->sections()->select('sections.id', 'sections.name')->pluck('name', 'id') : [];
+                    return $teacher ? $teacher->sections()->pluck('name', 'sections.id') : [];
                 })
                 ->searchable()
                 ->required()
@@ -88,10 +88,10 @@ class GradeResource extends Resource
 
             Forms\Components\Select::make('student_id')
                 ->label('Student')
-                ->options(function () {
-                    $guardian = Auth::user()->guardian; // Assumes User has a relationship to Guardian
-                    if ($guardian) {
-                        return $guardian->students()
+                ->options(function (callable $get) {
+                    $sectionId = $get('section_id'); // Get the selected section ID
+                    if ($sectionId) {
+                        return \App\Models\Student::where('section_id', $sectionId)
                             ->with('user') // Ensure user relationship is loaded
                             ->get()
                             ->pluck('user.name', 'id'); // Display student's name through user relationship

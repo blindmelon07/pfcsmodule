@@ -24,20 +24,20 @@ class GuardianResource extends Resource
         return $form
         ->schema([
             Forms\Components\Select::make('user_id')
-                ->label('Guardian')
-                ->options(\App\Models\User::whereHas('roles', function ($query) {
-                    $query->where('name', 'guardian');
-                })->pluck('name', 'id'))
-                ->searchable()
-                ->required(),
+            ->label('Guardian')
+            ->options(\App\Models\User::whereHas('roles', function ($query) {
+                $query->where('name', 'guardian');
+            })->pluck('name', 'id'))
+            ->searchable()
+            ->required(),
 
-            Forms\Components\Select::make('student_ids')
-                ->label('Students')
-                ->multiple()
-                ->options(\App\Models\User::whereHas('roles', function ($query) {
-                    $query->where('name', 'student');
-                })->pluck('name', 'id'))
-                ->searchable(),
+        Forms\Components\Select::make('student_ids')
+            ->label('Students')
+            ->multiple()
+            ->options(\App\Models\User::whereHas('roles', function ($query) {
+                $query->where('name', 'student');
+            })->pluck('name', 'id'))
+            ->searchable(),
         ]);
     }
 
@@ -94,4 +94,10 @@ class GuardianResource extends Resource
             'edit' => Pages\EditGuardian::route('/{record}/edit'),
         ];
     }
+    public static function afterSave(Form $form, $record)
+{
+    if (request()->has('student_ids')) {
+        $record->students()->sync(request('student_ids')); // Sync students for the guardian
+    }
+}
 }
