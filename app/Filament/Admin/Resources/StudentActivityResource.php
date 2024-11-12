@@ -9,9 +9,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class StudentActivityResource extends Resource
 {
@@ -80,56 +79,56 @@ class StudentActivityResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')
-                ->required()
-                ->maxLength(255),
+                    ->required()
+                    ->maxLength(255),
 
-            Forms\Components\Textarea::make('description')
-                ->columnSpanFull(),
+                Forms\Components\Textarea::make('description')
+                    ->columnSpanFull(),
 
-            Forms\Components\FileUpload::make('file_url')
-                ->label('File')
-                ->required()
-                ->directory('activities')
-                ->disk('public')
-                ->maxSize(10240)
-                ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
-                ->downloadable()
-                ->previewable(),
+                Forms\Components\FileUpload::make('file_url')
+                    ->label('File')
+                    ->required()
+                    ->directory('activities')
+                    ->disk('public')
+                    ->maxSize(10240)
+                    ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                    ->downloadable()
+                    ->previewable(),
 
-            Forms\Components\Hidden::make('teacher_id')
-                ->default(fn () => Auth::user()->teacher->id)
-                ->required(),
+                Forms\Components\Hidden::make('teacher_id')
+                    ->default(fn () => Auth::user()->teacher->id)
+                    ->required(),
 
-            Forms\Components\Select::make('section_id')
-                ->label('Section')
-                ->options(function () {
-                    $user = Auth::user();
-                    return $user && $user->teacher
-                        ? $user->teacher->sections()->pluck('name', 'sections.id')
-                        : [];
-                })
-                ->searchable()
-                ->required()
-                ->reactive()
-                ->afterStateUpdated(fn (callable $set) => $set('student_ids', [])),
+                Forms\Components\Select::make('section_id')
+                    ->label('Section')
+                    ->options(function () {
+                        $user = Auth::user();
 
-            Forms\Components\Select::make('student_ids')
-                ->multiple()
-                ->label('Students')
-                ->options(function (callable $get) {
-                    $sectionId = $get('section_id');
-                    return $sectionId
-                        ? \App\Models\Student::where('section_id', $sectionId)
-                            ->with('user')
-                            ->get()
-                            ->pluck('user.name', 'id')
-                        : [];
-                })
-                ->searchable(),
-        ]);
-}
+                        return $user && $user->teacher
+                            ? $user->teacher->sections()->pluck('name', 'sections.id')
+                            : [];
+                    })
+                    ->searchable()
+                    ->required()
+                    ->reactive()
+                    ->afterStateUpdated(fn (callable $set) => $set('student_ids', [])),
 
+                Forms\Components\Select::make('student_ids')
+                    ->multiple()
+                    ->label('Students')
+                    ->options(function (callable $get) {
+                        $sectionId = $get('section_id');
 
+                        return $sectionId
+                            ? \App\Models\Student::where('section_id', $sectionId)
+                                ->with('user')
+                                ->get()
+                                ->pluck('user.name', 'id')
+                            : [];
+                    })
+                    ->searchable(),
+            ]);
+    }
 
     public static function table(Table $table): Table
     {
@@ -149,12 +148,12 @@ class StudentActivityResource extends Resource
                 // ->getStateUsing(fn ($record) => $record->students->pluck('user.name')->join(', '))
                 // ->searchable(), // Keep searchable if you want, but remove sortable()
                 Tables\Columns\TextColumn::make('students_list')
-    ->label('Students')
-    ->getStateUsing(function ($record) {
-        // Access the section relationship and then fetch related students
-        return $record->section->students->pluck('user.name')->join(', ');
-    })
-    ->searchable(),
+                    ->label('Students')
+                    ->getStateUsing(function ($record) {
+                        // Access the section relationship and then fetch related students
+                        return $record->section->students->pluck('user.name')->join(', ');
+                    })
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')->label('Created At')->dateTime()->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')->label('Updated At')->dateTime()->sortable(),
             ])

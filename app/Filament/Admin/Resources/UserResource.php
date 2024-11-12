@@ -17,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Rawilk\FilamentPasswordInput\Password;
 
 class UserResource extends Resource
 {
@@ -77,14 +78,14 @@ class UserResource extends Resource
                         Toggle::make('is_active')
                             ->label('Active')
                             ->inline(false),
-                        Forms\Components\TextInput::make('password')
+                            Password::make('password')
                             ->password()
                             ->confirmed()
                             ->columnSpan(1)
                             ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $context): bool => $context === 'create'),
-                        Forms\Components\TextInput::make('password_confirmation')
+                            Password::make('password_confirmation')
                             ->required(fn (string $context): bool => $context === 'create')
                             ->columnSpan(1)
                             ->password(),

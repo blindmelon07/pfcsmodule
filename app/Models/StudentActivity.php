@@ -14,7 +14,7 @@ class StudentActivity extends Model
 
     public function students()
     {
-        return $this->belongsToMany(Student::class, 'student_activity_student','student_id');
+        return $this->belongsToMany(Student::class, 'student_activity_student', 'student_id');
     }
 
     public function section()
@@ -23,7 +23,7 @@ class StudentActivity extends Model
     }
 
     public function teacher()
-{
-    return $this->belongsTo(Teacher::class);
-}
+    {
+        return $this->belongsTo(Teacher::class);
+    }
 }

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class SectionProgress extends Page
 {
     use HasPageShield;
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationGroup = 'Modules';
@@ -20,10 +21,17 @@ class SectionProgress extends Page
     {
         $user = Auth::user();
 
-        // For super_admin or principal, get all sections; otherwise, get sections assigned to the teacher
+        // Initialize the sections query with eager loading of students and grades
         $sectionsQuery = Section::with('students.grades');
+
+        // If the user is a teacher, retrieve only sections assigned to them through the teacher relationship
         if ($user->hasRole('teacher')) {
-            $sectionsQuery->where('user_id', $user->id);
+            $teacher = $user->teacher; // Assuming User model has a `teacher` relationship
+            if ($teacher) {
+                $sectionsQuery->whereHas('teachers', function ($query) use ($teacher) {
+                    $query->where('teacher_id', $teacher->id);
+                });
+            }
         }
 
         $sections = $sectionsQuery->get();
@@ -34,15 +42,17 @@ class SectionProgress extends Page
         ];
 
         foreach ($sections as $section) {
-            // For each section, calculate the average grade for each student
+            // Calculate the average grade for each student in the section
             foreach ($section->students as $student) {
-                $averageGrade = $student->grades->map(function ($grade) {
-                    return ($grade->first_quarter + $grade->second_quarter + $grade->third_quarter + $grade->fourth_quarter) / 4;
-                })->avg();
+                if ($student->grades->isNotEmpty()) {
+                    $averageGrade = $student->grades->map(function ($grade) {
+                        return ($grade->first_quarter + $grade->second_quarter + $grade->third_quarter + $grade->fourth_quarter) / 4;
+                    })->avg();
 
-                // Add section name with student name as a label and the average grade as data
-                $chartData['labels'][] = "{$section->name} - {$student->name}";
-                $chartData['averages'][] = round($averageGrade, 2);
+                    // Add the label and average for charting
+                    $chartData['labels'][] = "{$section->name} - {$student->user->name}";
+                    $chartData['averages'][] = round($averageGrade, 2);
+                }
             }
         }
 

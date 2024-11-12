@@ -20,8 +20,9 @@ class Section extends Model
     {
         return $this->belongsToMany(Teacher::class);
     }
+
     public function activities()
-{
-    return $this->hasMany(StudentActivity::class);
-}
+    {
+        return $this->hasMany(StudentActivity::class);
+    }
 }
