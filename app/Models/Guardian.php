@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use TomatoPHP\FilamentMediaManager\Traits\InteractsWithMediaFolders;
 
 class Guardian extends Model
 {
+    use InteractsWithMediaFolders;
     use HasFactory;
 
     protected $fillable = ['user_id'];

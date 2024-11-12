@@ -56,7 +56,8 @@ class AdminPanelProvider extends PanelProvider
                         hasAvatars: true,
                         slug: 'profile'
                     ),
-                \TomatoPHP\FilamentMediaManager\FilamentMediaManagerPlugin::make(),
+                \TomatoPHP\FilamentMediaManager\FilamentMediaManagerPlugin::make()
+                ->allowSubFolders(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
                     ->gridColumns([
                         'default' => 1,
