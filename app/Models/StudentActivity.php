@@ -10,11 +10,11 @@ class StudentActivity extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['student_id', 'section_id', 'teacher_id', 'title', 'description', 'file_url'];
+    protected $fillable = ['title', 'description', 'file_url', 'section_id', 'teacher_id'];
 
-    public function student()
+    public function students()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsToMany(Student::class, 'student_activity_student','student_id');
     }
 
     public function section()

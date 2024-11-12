@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('student_activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id')->constrained()->onDelete('cascade'); // Link to student
+            // $table->foreignId('student_id')->constrained()->onDelete('cascade'); // Link to student
             $table->foreignId('section_id')->nullable()->constrained()->onDelete('set null'); // Link to section
             $table->foreignId('teacher_id')->nullable()->constrained('users')->onDelete('set null'); // Link to teacher
             $table->string('title');
